@@ -4,11 +4,15 @@ import matplotlib.pyplot as plt
 
 CONSENSUS_THRESHOLD = 64
 
+# example of data reading
+
 data = pd.read_excel('./Data/secondRound.xlsx', sheet_name='Survey Round 2 Responses')
 data = data.drop(columns='Experts')
 data = data.iloc[:, [not 'Experts confidence' in x and not 'Estimation of probability' in x for x in data.columns]]
 expImp = pd.read_excel('./Data/secondRound.xlsx', sheet_name='Years of experience')
 expImp = expImp.loc[1:23, 'Unnamed: 6']
+
+# -----------------------------------------
 
 def mapToFuzzyNumbers(option):
     if option == 'Strongly agree':
@@ -23,16 +27,13 @@ def mapToFuzzyNumbers(option):
         return (0.0, 0.0, 0.2)
     return (0.0, 0.05, 0.1)
 
-def distance(m,n):
+def distance(m, n):
     return (((m[0] - n[0]) ** 2 
             + (m[1] - n[1]) ** 2 
             + (m[2] - n[2]) ** 2) / 3)  ** 0.5
              
 def average(d):
     return [sum(x) / len(x) for x in zip(*d)]
-
-def distanceToAver(x):
-    return distance(x, aver)
 
 def defuziffy(x, averageMethod):
     if averageMethod == 'weighted':
@@ -68,13 +69,15 @@ def defuziffyCOA(x):
                                     'centroid')
     
 import numpy as np
-def delphiMethod(question, averageMethod='weighted'):
+def delphiMethod(question, deffuziffyMethod='average', averageMethod='weighted'):
     subData = data[question]
     k = len(subData)
     mappedData = subData.apply(mapToFuzzyNumbers)
     aver = average(mappedData)
-#     rank = defuziffy(aver, averageMethod)
-    rank = defuziffyCOA(np.array(aver))
+    if deffuziffyMethod == 'COA':
+        rank = defuziffyCOA(np.array(aver))
+    else:
+        rank = defuziffy(aver, averageMethod)
     def distanceToAver(x):
         return distance(x, aver)
     
